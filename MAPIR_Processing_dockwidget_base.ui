@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1040</width>
-    <height>644</height>
+    <height>649</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -30,7 +30,7 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout_7">
-    <item row="0" column="0">
+    <item row="1" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
        <bool>true</bool>
@@ -994,14 +994,59 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
+           <widget class="QComboBox" name="KernelArraySelect">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Single Camera</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>All Cameras</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>All 1.2MP Sensors</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>All 3.0MP Sensors</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>All 14.0MP Sensors</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="label_6">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="text">
              <string>Camera:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="KernelCameraSelect"/>
+           <widget class="QComboBox" name="KernelCameraSelect">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item>
            <spacer name="horizontalSpacer">
@@ -1066,172 +1111,7 @@ p, li { white-space: pre-wrap; }
            <attribute name="title">
             <string>Configure</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="1">
-             <layout class="QGridLayout" name="gridLayout_6">
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_19">
-                <property name="text">
-                 <string>External Trigger Mode:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QLabel" name="label_10">
-                <property name="text">
-                 <string>Photo Format:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="QComboBox" name="KernelFolderCount">
-                <item>
-                 <property name="text">
-                  <string>100</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>1000</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>10000</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="label_9">
-                <property name="text">
-                 <string>Media per folder:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1">
-               <widget class="QComboBox" name="KernelPhotoFormat">
-                <item>
-                 <property name="text">
-                  <string>Tiff</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Raw</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="6" column="0">
-               <widget class="QLabel" name="label_11">
-                <property name="text">
-                 <string>3-letter identifier:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="1">
-               <widget class="QLineEdit" name="Kernel3LetterID">
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="maxLength">
-                 <number>3</number>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QComboBox" name="KernelPWMMode">
-                <item>
-                 <property name="text">
-                  <string>Photo Capture</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Continuous</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Interval</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Video Recording</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Video Looping</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QCheckBox" name="KernelPWMSignal">
-                <property name="text">
-                 <string>External trigger is PWM</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QCheckBox" name="KernelBeep">
-                <property name="text">
-                 <string>Enable Beeps</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <spacer name="horizontalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="2" column="1">
-               <spacer name="horizontalSpacer_9">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0">
-             <layout class="QVBoxLayout" name="verticalLayout_3">
-              <item>
-               <widget class="QPushButton" name="KernelTimeButton">
-                <property name="text">
-                 <string>Set Camera Time</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="KernelCANButton">
-                <property name="text">
-                 <string>Adjust CAN Settings</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
+           <layout class="QGridLayout" name="gridLayout_6">
             <item row="0" column="0">
              <layout class="QVBoxLayout" name="verticalLayout">
               <item>
@@ -1614,13 +1494,189 @@ p, li { white-space: pre-wrap; }
               </item>
              </layout>
             </item>
-            <item row="0" column="2" rowspan="2">
+            <item row="0" column="1">
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="KernelBeep">
+                <property name="text">
+                 <string>Enable Beeps</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="KernelPWMSignal">
+                <property name="text">
+                 <string>External trigger is PWM</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <spacer name="horizontalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>External Trigger Mode:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QComboBox" name="KernelPWMMode">
+                <item>
+                 <property name="text">
+                  <string>Photo Capture</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Continuous</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Interval</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Video Recording</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Video Looping</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>Media per folder:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QComboBox" name="KernelFolderCount">
+                <item>
+                 <property name="text">
+                  <string>100</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>1000</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>10000</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Photo Format:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QComboBox" name="KernelPhotoFormat">
+                <item>
+                 <property name="text">
+                  <string>Tiff</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Raw</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>3-letter identifier:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_27">
+                <item>
+                 <widget class="QLineEdit" name="Kernel3LetterID">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="maxLength">
+                   <number>3</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="Kernel3LetterSave">
+                  <property name="text">
+                   <string>Save</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="2">
              <widget class="QTextEdit" name="KernelPanel"/>
+            </item>
+            <item row="1" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="QPushButton" name="KernelTimeButton">
+                <property name="text">
+                 <string>Set Camera Time</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="KernelCANButton">
+                <property name="text">
+                 <string>Adjust CAN Settings</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item row="1" column="1">
              <widget class="QPushButton" name="KernelResetButton">
               <property name="text">
-               <string>Restore To Factory Setting</string>
+               <string>Restore To Factory Settings</string>
               </property>
              </widget>
             </item>
@@ -1859,6 +1915,13 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QPushButton" name="TestButton">
+      <property name="text">
+       <string>Test</string>
+      </property>
      </widget>
     </item>
    </layout>

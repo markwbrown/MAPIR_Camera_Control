@@ -301,10 +301,12 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
     minutes = 0
     seconds = 1
     modalwindow = None
+    array_indicator = False
     timer = QTimer()
-    POLL_TIME = 100
-    SLOW_POLL = 10000
+    POLL_TIME = 3000
+    # SLOW_POLL = 10000
     slow = 0
+    regs = [0] * eRegister.RG_SIZE.value
     paths = []
     pathnames = []
     driveletters = ['\0','\0','\0','\0','\0','\0']
@@ -324,7 +326,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
     mMutex = QMutex()
     regs = []
 
-    ISO_VALS = (1,2,4,8)
+    ISO_VALS = (1,2,4,8,16,32)
     def __init__(self, parent=None):
         """Constructor."""
         super(MAPIR_ProcessingDockWidget, self).__init__(parent)
@@ -336,18 +338,13 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupUi(self)
         # self.timer.timeout.connect(self.tick)
 
-
-
     # def tick(self):
-    #
-    # def processEvent(self, source, evt, info):
-    #     source += 1
-    #     prev_mode = 0
-    #     # if evt == eEvent.EV_CAMERA_DEVICE_READY:
+    #     self.KernelUpdate()
 
     def on_KernelConnect_released(self):
         # try:
         # cam_list = []
+
         all_cameras = hid.enumerate(0x525, 0xa4ac)
         if all_cameras == []:
         # camera = all_cameras[0]
@@ -362,11 +359,30 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #
         #     cam_list.append(cam)
         # all_cameras = cam_list
+        self.paths.clear()
         for cam in all_cameras:
 
             self.paths.append(cam['path'])
-        self.paths.sort()
+
+
+        if len(self.paths) > 1:
+            temppaths = self.paths
+            arids = []
+            for path in self.paths:
+                self.camera = path
+                buf = [0] * 512
+                buf[0] = self.SET_REGISTER_READ_REPORT
+                buf[1] = eRegister.RG_CAMERA_LINK_ID.value
+                arid = self.writeToKernel(buf)[2]
+                print(arid)
+                arids.append(arid)
+
+            for count, id in enumerate(arids):
+                self.paths[count] = temppaths[id]
+
+        self.KernelCameraSelect.blockSignals(True)
         self.KernelCameraSelect.clear()
+        self.KernelCameraSelect.blockSignals(False)
         for path in self.paths:
             self.camera = path
             buf = [0] * 512
@@ -377,26 +393,30 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             print(chr(res[2]) + chr(res[3]) + chr(res[4]))
             item = chr(res[2]) + chr(res[3]) + chr(res[4])
             self.pathnames.append(item)
+            self.KernelCameraSelect.blockSignals(True)
             self.KernelCameraSelect.addItem(item)
-
-
-
+            self.KernelCameraSelect.blockSignals(False)
         self.camera = self.paths[0]
-        buf = [0] * 512
-        buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
-        buf[1] = eRegister.RG_CAN_SAMPLE_POINT_1.value
-        buf[2] = 2
-        res = self.writeToKernel(buf)
-        print(res[2])
-        print(res[3])
-        print(res[4])
-        # item = chr(res[2]) + chr(res[3]) + chr(res[4])
-        # self.timer.start(self.POLL_TIME)
-
+        # buf = [0] * 512
+        # buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
+        # buf[1] = eRegister.RG_CAMERA_SETTING.value
+        # buf[2] = eRegister.RG_SIZE.value
+        #
+        # res = self.writeToKernel(buf)
+        # self.regs = res[2:]
+        self.KernelUpdate()
         # self.timer.start(self.POLL_TIME)
     def on_KernelCameraSelect_currentIndexChanged(self):
-        self.camera = self.paths[self.KernelCameraSelect.currentIndex()]
+        self.camera = self.paths[self.KernelCameraSelect.currentIndex() - 1]
 
+        self.KernelUpdate()
+    def on_KernelArraySelect_currentIndexChanged(self):
+        if self.KernelArraySelect.currentIndex() == 0:
+            self.array_indicator = False
+            self.KernelCameraSelect.setEnabled(True)
+        else:
+            self.array_indicator = True
+            self.KernelCameraSelect.setEnabled(False)
     def on_KernelExposureMode_currentIndexChanged(self, int):
         if self.KernelExposureMode.currentIndex() == 0:
             self.KernelISO.setEnabled(False)
@@ -404,37 +424,109 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         else:
             self.KernelISO.setEnabled(True)
             self.KernelShutterSpeed.setEnabled(True)
+        # self.KernelUpdate()
+    def KernelUpdate(self):
+        self.KernelExposureMode.blockSignals(True)
+        self.KernelShutterSpeed.blockSignals(True)
+        self.KernelISO.blockSignals(True)
+        self.KernelVideoOut.blockSignals(True)
+        self.KernelFolderCount.blockSignals(True)
+        self.KernelBeep.blockSignals(True)
+        self.KernelPWMSignal.blockSignals(True)
 
-    def on_KernelUpdate_released(self):
         buf = [0] * 512
-        buf[0] = self.SET_REGISTER_WRITE_REPORT
-        buf[1] = eRegister.RG_CAN_NODE_ID.value
-        temp = int(self.KernelNodeID.text())
+        buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
+        buf[1] = eRegister.RG_CAMERA_SETTING.value
+        buf[2] = eRegister.RG_SIZE.value
 
-        if temp > 254 or temp < 1:
-            print("Can Node ID: ID must be between 1 and 254")
+        res = self.writeToKernel(buf)
+        self.regs = res[2:]
+        shutter = self.getRegister(eRegister.RG_SHUTTER.value)
+        if shutter == 0:
+            self.KernelExposureMode.setCurrentIndex(0)
+            self.KernelISO.setEnabled(False)
+            self.KernelShutterSpeed.setEnabled(False)
         else:
-            buf[2] = temp
-        self.writeToKernel(buf)
+            self.KernelExposureMode.setCurrentIndex(1)
+            self.KernelISO.setEnabled(True)
+            self.KernelShutterSpeed.setEnabled(True)
+
+        self.KernelShutterSpeed.setCurrentIndex(shutter - 1)
+
+        iso = self.getRegister(eRegister.RG_ISO.value)
+        if iso == self.ISO_VALS[0]:
+
+            self.KernelISO.setCurrentIndex(0)
+        elif iso == self.ISO_VALS[1]:
+            self.KernelISO.setCurrentIndex(1)
+        elif iso == self.ISO_VALS[2]:
+            self.KernelISO.setCurrentIndex(2)
+        else:
+            self.KernelISO.setCurrentIndex(3)
+
+        dac = self.getRegister(eRegister.RG_DAC.value)
+
+        hdmi = self.getRegister(eRegister.RG_HDMI.value)
+
+        if hdmi == 1 and dac == 1:
+            self.KernelVideoOut.setCurrentIndex(3)
+        elif hdmi == 0 and dac == 1:
+            self.KernelVideoOut.setCurrentIndex(2)
+        elif hdmi == 1 and dac == 0:
+            self.KernelVideoOut.setCurrentIndex(1)
+        else:
+            self.KernelVideoOut.setCurrentIndex(0)
 
 
+        media = self.getRegister(eRegister.RG_MEDIA_FILES_CNT.value)
+        self.KernelFolderCount.setCurrentIndex(media)
+
+
+
+        beep = self.getRegister(eRegister.RG_BEEPER_ENABLE.value)
+        if beep != 0:
+            self.KernelBeep.setChecked(True)
+        else:
+            self.KernelBeep.setChecked(False)
+
+        pwm = self.getRegister(eRegister.RG_PWM_TRIGGER.value)
+        if pwm != 0:
+            self.KernelPWMSignal.setChecked(True)
+        else:
+            self.KernelPWMSignal.setChecked(False)
+
+        self.KernelPanel.clear()
+        self.KernelPanel.append("Hardware ID: " + str(self.getRegister(eRegister.RG_HARDWARE_ID.value)))
+        self.KernelPanel.append("Firmware version: " + str(self.getRegister(eRegister.RG_FIRMWARE_ID.value)))
+        self.KernelPanel.append("Sensor: " + str(self.getRegister(eRegister.RG_SENSOR_ID.value)))
+        self.KernelPanel.append("Lens: " + str(self.getRegister(eRegister.RG_LENS_ID.value)))
+        if shutter == 0:
+            self.KernelPanel.append("Shutter: Auto")
+        else:
+            self.KernelPanel.append("Shutter: " + self.KernelShutterSpeed.itemText(self.getRegister(eRegister.RG_SHUTTER.value) -1) + " sec")
+        self.KernelPanel.append("ISO: " + str(self.getRegister(eRegister.RG_ISO.value)) + "00")
+        self.KernelPanel.append("WB: " + str(self.getRegister(eRegister.RG_WHITE_BALANCE.value)))
+        self.KernelPanel.append("EVC: " + str(self.getRegister(eRegister.RG_EV_CORRECTION.value)))
+        self.KernelPanel.append("Video resolution: " + str(self.getRegister(eRegister.RG_VIDEO_RESOLUTION.value)))
+        self.KernelPanel.append("Photo resolution: " + str(self.getRegister(eRegister.RG_PHOTO_RESOLUTION.value)/10) + " Mpix")
         buf = [0] * 512
-        buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
-        buf[1] = eRegister.RG_CAN_BIT_RATE_1.value
-        temp = int(self.KernelSamplePoint.text())
-        buf[2] = 2
-        buf[3] = 0
-        buf[4] = temp
-        self.writeToKernel(buf)
-
+        buf[0] = self.SET_REGISTER_READ_REPORT
+        buf[1] = eRegister.RG_CAMERA_ARRAY_TYPE.value
+        artype = self.writeToKernel(buf)[3]
+        self.KernelPanel.append("Array Type: " + str(artype))
         buf = [0] * 512
-        buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
-        buf[1] = eRegister.RG_CAN_BIT_RATE_1.value
-        temp = int(self.KernelBitRate.currentText())
-        buf[2] = 2
-        buf[3] = 0
-        buf[4] = temp
-        self.writeToKernel(buf)
+        buf[0] = self.SET_REGISTER_READ_REPORT
+        buf[1] = eRegister.RG_CAMERA_LINK_ID.value
+        arid = self.writeToKernel(buf)[3]
+        self.KernelPanel.append("Array ID: " + str(arid))
+    #     TODO Get Shutter speed up to date and add camera read commands for array type and link ID.
+        self.KernelExposureMode.blockSignals(False)
+        self.KernelShutterSpeed.blockSignals(False)
+        self.KernelISO.blockSignals(False)
+        self.KernelVideoOut.blockSignals(False)
+        self.KernelFolderCount.blockSignals(False)
+        self.KernelBeep.blockSignals(False)
+        self.KernelPWMSignal.blockSignals(False)
     def on_KernelFolderButton_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.KernelTransferFolder.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
@@ -659,7 +751,19 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.KernelShutterSpeed.setEnabled(False)
 
             self.KernelISO.setEnabled(False)
+            buf = [0] * 512
+            buf[0] = self.SET_REGISTER_WRITE_REPORT
+            buf[1] = eRegister.RG_SHUTTER.value
+            buf[2] = 0
 
+            res = self.writeToKernel(buf)
+            buf = [0] * 512
+            buf[0] = self.SET_REGISTER_WRITE_REPORT
+            buf[1] = eRegister.RG_ISO.value
+            buf[2] = 8
+
+            res = self.writeToKernel(buf)
+            self.KernelUpdate()
     def on_KernelCaptureButton_released(self):
 
 
@@ -697,7 +801,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.capturing = False
 
         res = self.writeToKernel(buf)
-
+        self.KernelUpdate()
     def on_KernelShutterSpeed_currentIndexChanged(self):
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_WRITE_REPORT
@@ -706,7 +810,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             buf[2] = self.KernelShutterSpeed.currentIndex() + 1
 
         res = self.writeToKernel(buf)
-
+        self.KernelUpdate()
     def on_KernelISO_currentIndexChanged(self):
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_WRITE_REPORT
@@ -714,93 +818,49 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if self.KernelExposureMode.currentIndex() == 1:
             buf[2] = self.ISO_VALS[self.KernelISO.currentIndex()]
         else:
-            buf[2] = 3
+            buf[2] = self.ISO_VALS[3]
 
         res = self.writeToKernel(buf)
-
+        self.KernelUpdate()
     # TODO GET READING AND ANYTHING ELSE POSSIBLE DONE WITH CONRTOL APP BY EOD TODAY 5/24/2017
-
+    def getRegister(self, code):
+        if code < eRegister.RG_SIZE.value:
+            return self.regs[code]
+        else:
+            return 0
+    def setRegister(self, code, value):
+        if code >= eRegister.RG_SIZE.value:
+            return False
+        elif value == self.regs[code]:
+            return False
+        else:
+            self.regs[code] = value
+            return True
+    def on_TestButton_released(self):
+        buf = [0] * 512
+        buf[0] = self.SET_COMMAND_REPORT
+        buf[1] = eRegister.RG_CAMERA_ARRAY_TYPE.value
+        artype = self.writeToKernel(buf)[2]
+        print(artype)
+        self.KernelUpdate()
     def writeToKernel(self, buffer):
-        dev = hid.device()
-        dev.open_path(self.camera)
-        q = dev.write(buffer)
-        print(q)
-        r = dev.read(self.BUFF_LEN)
-        print(r)
-        dev.close()
-        return r
-        # buf = [0] * 512
-        # buf[0] = 2
-        # buf[1] = 143  # ISO Register
-        # temp = int(self.KernelISO.currentText())
-        # buf[2] = temp / 100
-        #
-        #
-        #
-        #
-        # # if camera <= 0:
-        # #     return 9
-        # # if sys.platform == "linux2":
-        # #     res = self.writeToKernel(buf, 220)
-        # # else:
-        # buf = [0] * 512
-        # buf[0] = 47
-        # buf[1] = 0
-        # if self.KernelBeeper.ischecked():
-        #     buf[1] = 1
-        # self.writeToKernel(buf)
-        #
-        # buf = [0] * 512
-        #
-        # buf[0] = 2
-        # buf[1] = 111  # Shutter Speed Register
-        # buf[2] = (self.KernelShutterSpeed.currentIndex() + 1)
-        # self.writeToKernel(buf)
-        #
-        # buf = [0] * 512
-        #
-        # buf[0] = 2
-        # buf[1] = 22  # Time Lapse Interval Register
-        # buf[2] = (self.seconds)
-        # self.writeToKernel(buf)
-        #
-        # buf = [0] * 512
-        #
-        # buf[0] = 2
-        # buf[1] = 13  #Photo Format Register
-        # buf[2] = (self.KernelPhotoFormat.currentIndex())
-        # self.writeToKernel(buf)
-        #
-        # buf[0] = 2
-        # buf[1] = 9  # Number of images per folder Register
-        # buf[2] = (self.KernelFolderCount.currentIndex())
-        # self.writeToKernel(buf)
-        #
-        # buf[0] = 3
-        # buf[1] = 40  # 3 letter ID register
-        # buf[2] = 3
-        # buf[3] = (self.Kernel3LetterID.currentText())
-        # self.writeToKernel(buf)
-        #
-        # buf[0] = 3
-        # buf[1] = 44  # CAN Bit Rate Register
-        # buf[2] = 3
-        # buf[3] = (self.KernelBitRate.currentText())
-        # self.writeToKernel(buf)
-        #
-        # buf[0] = 3
-        # buf[1] = 46  # CAN Sample Point
-        # buf[2] = 3
-        # buf[3] = (int(self.KernelSamplePoint.currentText()))
-        # self.writeToKernel(buf)
-        #
-        # buf[0] = 2
-        # buf[1] = 48  # CAN Sample Point
-        # buf[2] = (int(self.KernelSamplePoint.currentText()))
-        # self.writeToKernel(buf)
-        #
-        #
-        #
+        if self.array_indicator == False:
+            dev = hid.device()
+            dev.open_path(self.camera)
+            q = dev.write(buffer)
+            r = dev.read(self.BUFF_LEN)
+            dev.close()
+            return r
+        else:
+            r = []
+            q = []
+            for dev in self.paths:
+                dev = hid.device()
+                dev.open_path(self.camera)
+                q.append(dev.write(buffer))
+                r.append(dev.read(self.BUFF_LEN))
+                dev.close()
+
     def on_KernelBeep_toggled(self):
         buf = [0] * 512
 
@@ -812,7 +872,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             buf[2] = 0
 
         res = self.writeToKernel(buf)
-
+        self.KernelUpdate()
     def on_KernelPWMSignal_toggled(self):
         buf = [0] * 512
 
@@ -824,22 +884,22 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             buf[2] = 0
 
         res = self.writeToKernel(buf)
-
+        self.KernelUpdate()
     def on_KernelResetButton_released(self):
         buf = [0] * 512
         buf[0] = self.SET_COMMAND_REPORT
         buf[1] = eRegister.CM_RESET_CAMERA.value
 
         self.writeToKernel(buf)
-
+        self.KernelUpdate()
     def on_KernelFolderCount_currentIndexChanged(self):
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_WRITE_REPORT
         buf[1] = eRegister.RG_MEDIA_FILES_CNT.value
-        buf[2] = self.KernelBitRate.currentIndex()
+        buf[2] = self.KernelFolderCount.currentIndex()
 
         self.writeToKernel(buf)
-
+        self.KernelUpdate()
     def on_KernelVideoOut_currentIndexChanged(self):
         if self.KernelVideoOut.currentIndex() == 0:  # No Output
             buf = [0] * 512
@@ -898,7 +958,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             buf[2] = 1
             self.writeToKernel(buf)
         # self.camera.close()
-
+        self.KernelUpdate()
     def on_KernelIntervalButton_released(self):
         self.modalwindow = KernelModal(self)
         self.modalwindow.setGeometry(QRect(100, 100, 400, 200))
@@ -908,16 +968,20 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if num == 0:
             num = 1
         self.seconds = num
+        self.KernelUpdate()
 
     def on_KernelCANButton_released(self):
         self.modalwindow = KernelCAN(self)
         self.modalwindow.setGeometry(QRect(100, 100, 400, 200))
         self.modalwindow.show()
+        self.KernelUpdate()
 
     def on_KernelTimeButton_released(self):
         self.modalwindow = KernelTime(self)
         self.modalwindow.setGeometry(QRect(100, 100, 400, 200))
         self.modalwindow.show()
+        self.KernelUpdate()
+
     def writeToIntervalLine(self):
         self.KernelIntervalLine.clear()
         self.KernelIntervalLine.setText(
@@ -1816,9 +1880,9 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             green = (((green - minpixel + 1) / (maxpixel - minpixel + 1)))
             blue = (((blue - minpixel + 1) / (maxpixel - minpixel + 1)))
             self.CalibrationLog.append("Removing Gamma")
-            red = math.pow(red, 0.455)
-            green = math.pow(green, 0.455)
-            blue = math.pow(blue, 0.455)
+            red = np.power(red, 0.455)
+            green = np.power(green, 0.455)
+            blue = np.power(blue, 0.455)
             red = red * 255
             green = green * 255
             blue = blue * 255
