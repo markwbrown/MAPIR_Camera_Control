@@ -43,7 +43,7 @@ import time
 import distutils
 from distutils import dir_util
 from MAPIR_Enums import *
-#import struct
+import struct
 
 modpath = os.path.dirname(os.path.realpath(__file__))
 
@@ -172,7 +172,33 @@ class KernelCAN(QtGui.QDialog, CAN_CLASS):
         self.setupUi(self)
 
     def on_ModalSaveButton_released(self):
+        buf = [0] * 512
+        buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
+        buf[1] = eRegister.RG_CAN_NODE_ID.value
+        nodeid = int(self.KernelNodeID.text())
+        buf[2] = nodeid
 
+        self.parent.writeToKernel(buf)
+        buf = [0] * 512
+        buf[0] = self.parent.SET_REGISTER_BLOCK_WRITE_REPORT
+        buf[1] = eRegister.RG_CAN_BIT_RATE_1.value
+        buf[2] = 2
+        bitrate = int(self.KernelBitRate.currentText())
+        bit1 = (bitrate >> 8) & 0xff
+        bit2 = bitrate & 0xff
+        buf[3] = bit1
+        buf[4] = bit2
+
+        buf = [0] * 512
+        buf = [0] * 512
+        buf[0] = self.parent.SET_REGISTER_BLOCK_WRITE_REPORT
+        buf[1] = eRegister.RG_CAN_SAMPLE_POINT_1.value
+        buf[2] = 2
+        samplepoint = int(self.KernelSamplePoint.text())
+        sample1 = (samplepoint >> 8) & 0xff
+        sample2 = samplepoint & 0xff
+        buf[3] = sample1
+        buf[4] = sample2
         self.close()
 
     def on_ModalCancelButton_released(self):
@@ -181,7 +207,15 @@ class KernelCAN(QtGui.QDialog, CAN_CLASS):
 
 class KernelTime(QtGui.QDialog, TIME_CLASS):
     parent = None
-
+    timer = QTimer()
+    BUFF_LEN = 512
+    SET_EVENT_REPORT = 1
+    SET_COMMAND_REPORT = 3
+    SET_REGISTER_WRITE_REPORT = 5
+    SET_REGISTER_BLOCK_WRITE_REPORT = 7
+    SET_REGISTER_READ_REPORT = 9
+    SET_REGISTER_BLOCK_READ_REPORT = 11
+    SET_CAMERA = 13
     def __init__(self, parent=None):
         """Constructor."""
         super(KernelTime, self).__init__(parent=parent)
@@ -192,12 +226,132 @@ class KernelTime(QtGui.QDialog, TIME_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-
+        self.timer.timeout.connect(self.tick)
+        self.timer.start(1)
     def on_ModalSaveButton_released(self):
+        self.timer.stop()
+        buf = [0] * 512
+
+        buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
+        buf[1] = eRegister.RG_REALTIME_CLOCK.value
+        buf[2] = 8
+        t = QDateTime.toMSecsSinceEpoch(self.KernelReferenceTime.dateTime())
+        buf[3] = t & 0xff
+        buf[4] = (t >> 8) & 0xff
+        buf[5] = (t >> 16) & 0xff
+        buf[6] = (t >> 24) & 0xff
+        buf[7] = (t >> 32) & 0xff
+        buf[8] = (t >> 40) & 0xff
+        buf[9] = (t >> 48) & 0xff
+        buf[10] = (t >> 54) & 0xff
+        self.parent.writeToKernel(buf)
+        buf = [0] * 512
+
+        buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
+        buf[1] = eRegister.RG_REALTIME_CLOCK.value
+        buf[2] = 8
+        r = self.parent.writeToKernel(buf)[2:11]
+        val = r[0] | (r[1] << 8) | (r[2] << 16) | (r[3] << 24) | (r[4] << 32) | (r[5] << 40) | (r[6] << 48) | (
+        r[7] << 56)
+
+        offset = QDateTime.currentMSecsSinceEpoch() - val
+
+        while offset > 1:
+            if self.KernelTimeSelect.currentIndex() == 0:
+                buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
+                buf[1] = eRegister.RG_REALTIME_CLOCK.value
+                buf[2] = 8
+                t = QDateTime.toMSecsSinceEpoch(QDateTime.currentDateTimeUtc().addSecs(18).addMSecs(offset))
+                buf[3] = t & 0xff
+                buf[4] = (t >> 8) & 0xff
+                buf[5] = (t >> 16) & 0xff
+                buf[6] = (t >> 24) & 0xff
+                buf[7] = (t >> 32) & 0xff
+                buf[8] = (t >> 40) & 0xff
+                buf[9] = (t >> 48) & 0xff
+                buf[10] = (t >> 54) & 0xff
+                self.parent.writeToKernel(buf)
+                buf = [0] * 512
+
+                buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
+                buf[1] = eRegister.RG_REALTIME_CLOCK.value
+                buf[2] = 8
+                r = self.parent.writeToKernel(buf)[2:11]
+                val = r[0] | (r[1] << 8) | (r[2] << 16) | (r[3] << 24) | (r[4] << 32) | (r[5] << 40) | (r[6] << 48) | (
+                    r[7] << 56)
+
+                offset = QDateTime.currentMSecsSinceEpoch() - val
+            elif self.KernelTimeSelect.currentIndex() == 1:
+                buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
+                buf[1] = eRegister.RG_REALTIME_CLOCK.value
+                buf[2] = 8
+                t = QDateTime.toMSecsSinceEpoch(QDateTime.currentDateTimeUtc().addMSecs(offset))
+                buf[3] = t & 0xff
+                buf[4] = (t >> 8) & 0xff
+                buf[5] = (t >> 16) & 0xff
+                buf[6] = (t >> 24) & 0xff
+                buf[7] = (t >> 32) & 0xff
+                buf[8] = (t >> 40) & 0xff
+                buf[9] = (t >> 48) & 0xff
+                buf[10] = (t >> 54) & 0xff
+                self.parent.writeToKernel(buf)
+                buf = [0] * 512
+
+                buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
+                buf[1] = eRegister.RG_REALTIME_CLOCK.value
+                buf[2] = 8
+                r = self.parent.writeToKernel(buf)[2:11]
+                val = r[0] | (r[1] << 8) | (r[2] << 16) | (r[3] << 24) | (r[4] << 32) | (r[5] << 40) | (r[6] << 48) | (
+                    r[7] << 56)
+
+                offset = QDateTime.currentMSecsSinceEpoch() - val
+            else:
+
+                buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
+                buf[1] = eRegister.RG_REALTIME_CLOCK.value
+                buf[2] = 8
+                t = QDateTime.toMSecsSinceEpoch(QDateTime.currentDateTime().addMSecs(offset))
+                buf[3] = t & 0xff
+                buf[4] = (t >> 8) & 0xff
+                buf[5] = (t >> 16) & 0xff
+                buf[6] = (t >> 24) & 0xff
+                buf[7] = (t >> 32) & 0xff
+                buf[8] = (t >> 40) & 0xff
+                buf[9] = (t >> 48) & 0xff
+                buf[10] = (t >> 54) & 0xff
+                self.parent.writeToKernel(buf)
+                buf = [0] * 512
+
+                buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
+                buf[1] = eRegister.RG_REALTIME_CLOCK.value
+                buf[2] = 8
+                r = self.parent.writeToKernel(buf)[2:11]
+                val = r[0] | (r[1] << 8) | (r[2] << 16) | (r[3] << 24) | (r[4] << 32) | (r[5] << 40) | (r[6] << 48) | (
+                    r[7] << 56)
+
+                offset = QDateTime.currentMSecsSinceEpoch() - val
+
         self.close()
 
     def on_ModalCancelButton_released(self):
+        self.timer.stop()
         self.close()
+
+    def tick(self):
+        buf = [0] * 512
+
+        buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
+        buf[1] = eRegister.RG_REALTIME_CLOCK.value
+        buf[2] = 8
+        r = self.parent.writeToKernel(buf)[2:11]
+        val = r[0] | (r[1] << 8) | (r[2] << 16) | (r[3] << 24) | (r[4] << 32) | (r[5] << 40) | (r[6] << 48) | (r[7] << 56)
+        self.KernelCameraTime.setDateTime(QDateTime.fromMSecsSinceEpoch(val))
+        if self.KernelTimeSelect.currentIndex() == 0:
+            self.KernelReferenceTime.setDateTime(QDateTime.currentDateTimeUtc().addSecs(18))
+        elif self.KernelTimeSelect.currentIndex() == 1:
+            self.KernelReferenceTime.setDateTime(QDateTime.currentDateTimeUtc())
+        else:
+            self.KernelReferenceTime.setDateTime(QDateTime.currentDateTime())
 class tPoll:
     def __init__(self):
         request = 0
@@ -302,7 +456,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
     seconds = 1
     modalwindow = None
     array_indicator = False
-    timer = QTimer()
+
     POLL_TIME = 3000
     # SLOW_POLL = 10000
     slow = 0
@@ -323,9 +477,11 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
     SET_REGISTER_READ_REPORT = 9
     SET_REGISTER_BLOCK_READ_REPORT = 11
     SET_CAMERA = 13
-    mMutex = QMutex()
+    # mMutex = QMutex()
     regs = []
-
+    paths_1_2 = []
+    paths_3_0 = []
+    paths_14_0 = []
     ISO_VALS = (1,2,4,8,16,32)
     def __init__(self, parent=None):
         """Constructor."""
@@ -342,24 +498,16 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
     #     self.KernelUpdate()
 
     def on_KernelConnect_released(self):
-        # try:
-        # cam_list = []
 
-        all_cameras = hid.enumerate(0x525, 0xa4ac)
+        all_cameras = hid.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
         if all_cameras == []:
-        # camera = all_cameras[0]
-        # except:
+
             self.KernelLog.append("No cameras found! Please check your USB connection and try again.")
-        # for cam in all_cameras:
-        #     # cam.set_configuration()
-        #     # cfg = cam.get_active_configuration()
-        #     # intf = cfg[(0,0)]
-        #     # endpoint = usb.util.find_descriptor(intf, custom_match=lambda e: usb.util.endpoint_direction(e.bEndpointAddress) == usb.util.ENDPOINT_OUT)
-        #     # assert  endpoint is not None
-        #
-        #     cam_list.append(cam)
-        # all_cameras = cam_list
+
         self.paths.clear()
+        self.paths_1_2.clear()
+        self.paths_3_0.clear()
+        self.paths_14_0.clear()
         for cam in all_cameras:
 
             self.paths.append(cam['path'])
@@ -392,20 +540,24 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             res = self.writeToKernel(buf)
             print(chr(res[2]) + chr(res[3]) + chr(res[4]))
             item = chr(res[2]) + chr(res[3]) + chr(res[4])
+            buf = [0] * 512
+            buf[0] = self.SET_REGISTER_READ_REPORT
+            buf[1] = eRegister.RG_SENSOR_ID.value
+            res = self.writeToKernel(buf)
+            if res[2] == 2:
+                self.paths_1_2.append(path)
+            elif res[2] == 1:
+                self.paths_3_0.append(path)
+            elif res[2] == 0:
+                self.paths_14_0.append(path)
             self.pathnames.append(item)
             self.KernelCameraSelect.blockSignals(True)
             self.KernelCameraSelect.addItem(item)
             self.KernelCameraSelect.blockSignals(False)
         self.camera = self.paths[0]
-        # buf = [0] * 512
-        # buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
-        # buf[1] = eRegister.RG_CAMERA_SETTING.value
-        # buf[2] = eRegister.RG_SIZE.value
-        #
-        # res = self.writeToKernel(buf)
-        # self.regs = res[2:]
+
         self.KernelUpdate()
-        # self.timer.start(self.POLL_TIME)
+
     def on_KernelCameraSelect_currentIndexChanged(self):
         self.camera = self.paths[self.KernelCameraSelect.currentIndex() - 1]
 
@@ -424,7 +576,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         else:
             self.KernelISO.setEnabled(True)
             self.KernelShutterSpeed.setEnabled(True)
-        # self.KernelUpdate()
+
     def KernelUpdate(self):
         self.KernelExposureMode.blockSignals(True)
         self.KernelShutterSpeed.blockSignals(True)
@@ -519,7 +671,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         buf[1] = eRegister.RG_CAMERA_LINK_ID.value
         arid = self.writeToKernel(buf)[3]
         self.KernelPanel.append("Array ID: " + str(arid))
-    #     TODO Get Shutter speed up to date and add camera read commands for array type and link ID.
+
         self.KernelExposureMode.blockSignals(False)
         self.KernelShutterSpeed.blockSignals(False)
         self.KernelISO.blockSignals(False)
@@ -665,28 +817,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
             if len(folder) > 0:
                 for tiff in folder:
-                    # print(str(tiff))
-                    # if len(sys.argv) > 4:
-                    #     img = cv2.imread(tiff, -1)
-                    #     # cv2.imwrite(tiff.split('.')[0] + "_temp" + '.' + tiff.split('.')[1], img)
-                    #     # subprocess.call(
-                    #     #     [modpath + os.sep + r'exiftool.exe', r'-overwrite_original', r'-tagsFromFile',
-                    #     #      tiff,
-                    #     #      r'-all:all<all:all',
-                    #     #      tiff.split('.')[0] + "_temp" + '.' + tiff.split('.')[1]], startupinfo=si)
-                    #     rows, cols = img.shape
-                    #     #
-                    #     M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 180, 1)
-                    #     dst = cv2.warpAffine(img, M, (cols, rows))
-                    #     # dst = cv2.rotate(img, 180)
-                    #     cv2.imwrite(tiff, dst)
 
-                        # subprocess.call(
-                        #     [modpath + os.sep + r'exiftool.exe', r'-overwrite_original', r'-tagsFromFile',
-                        #      tiff.split('.')[0] + "_temp" + '.' + tiff.split('.')[1],
-                        #      r'-all:all<all:all',
-                        #      tiff], startupinfo=si)
-                        # os.remove(tiff.split('.')[0] + "_temp" + '.' + tiff.split('.')[1])
 
                     shutil.copyfile(tiff, outfolder + os.sep + "IMG_" + str(counter).zfill(5) + '_' + str(
                         underscore) + '.' + tiff.split('.')[1])
@@ -699,29 +830,29 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
 
         if self.KernelTransferButton.isChecked():
-            if self.KernelArrayTransfer.isChecked():
-                current_path = self.camera
-                for path in self.paths:
-                    self.camera = path
-                    buf = [0] * 512
-                    buf[0] = self.SET_COMMAND_REPORT
-                    buf[1] = eCommand.CM_TRANSFER_MODE.value
-                    res = self.writeToKernel(buf)
-                self.camera = current_path
-                drv = 'C'
-                while drv is not ']':
-                    if os.path.isdir(drv + r":" + os.sep + r"dcim"):
-                        # try:
-
-                        shutil.copytree(drv + r":" + os.sep + r"dcim" + os.sep,
-                                        self.KernelTransferFolder.text() + os.sep + drv)
-                        drv = chr(ord(drv) + 1)
-                        # except:
-                        #     drv = chr(ord(drv) + 1)
-                        #     pass
-                    else:
-                        drv = chr(ord(drv) + 1)
-            else:
+            # if self.KernelArrayTransfer.isChecked():
+            #     current_path = self.camera
+            #     for path in self.paths:
+            #         self.camera = path
+            #         buf = [0] * 512
+            #         buf[0] = self.SET_COMMAND_REPORT
+            #         buf[1] = eCommand.CM_TRANSFER_MODE.value
+            #         res = self.writeToKernel(buf)
+            #     self.camera = current_path
+            #     drv = 'C'
+            #     while drv is not ']':
+            #         if os.path.isdir(drv + r":" + os.sep + r"dcim"):
+            #             # try:
+            #
+            #             shutil.copytree(drv + r":" + os.sep + r"dcim" + os.sep,
+            #                             self.KernelTransferFolder.text() + os.sep + drv)
+            #             drv = chr(ord(drv) + 1)
+            #             # except:
+            #             #     drv = chr(ord(drv) + 1)
+            #             #     pass
+            #         else:
+            #             drv = chr(ord(drv) + 1)
+            # else:
                 buf = [0] * 512
                 buf[0] = self.SET_COMMAND_REPORT
                 buf[1] = eCommand.CM_TRANSFER_MODE.value
@@ -822,7 +953,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         res = self.writeToKernel(buf)
         self.KernelUpdate()
-    # TODO GET READING AND ANYTHING ELSE POSSIBLE DONE WITH CONRTOL APP BY EOD TODAY 5/24/2017
+
     def getRegister(self, code):
         if code < eRegister.RG_SIZE.value:
             return self.regs[code]
@@ -854,9 +985,9 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         else:
             r = []
             q = []
-            for dev in self.paths:
+            for path in self.paths:
                 dev = hid.device()
-                dev.open_path(self.camera)
+                dev.open_path(path)
                 q.append(dev.write(buffer))
                 r.append(dev.read(self.BUFF_LEN))
                 dev.close()
@@ -1932,12 +2063,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
                         [int(cv2.IMWRITE_JPEG_QUALITY), 100])
 
             self.copyExif(photo, output_directory + photo.split('.')[1] + "_CALIBRATED.JPG")
-            # if self.IndexBox.checkState() > 0:
-            #     indeximg = (blue - red) / (blue + red)
-            #     indeximg = indeximg.astype("float32")
-            #     cv2.imwrite(output_directory + photo.split('.')[1] + "_Indexed.JPG", indeximg, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
-            #     self.copyExif(photo, output_directory + photo.split('.')[1] + "_Indexed.JPG")
-            # todo See if JPG can store geotiff metadata
+
         else:
             newimg = output_directory + photo.split('.')[1] + "_CALIBRATED." + photo.split('.')[2]
             if 'tif' in photo.split('.')[2].lower():
@@ -1956,14 +2082,10 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 cv2.imwrite(newimg, refimg, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
             self.copyExif(photo, newimg)
-            # if self.IndexBox.checkState() > 0:
-            #     indeximg = (blue - red) / (blue + red)
-            #     cv2.imwrite(output_directory + photo.split('.')[1] + "_Indexed." + photo.split('.')[2], indeximg)
-            #     self.copyExif(photo, output_directory + photo.split('.')[1] + "_Indexed" + photo.split('.')[2])
 
 
-            ####Function for finding he QR target and calculating the calibration coeficients
 
+####Function for finding he QR target and calculating the calibration coeficients
     def findQR(self, image):
         subprocess.call([modpath + os.sep + r'FiducialFinder.exe', image])
         list = None

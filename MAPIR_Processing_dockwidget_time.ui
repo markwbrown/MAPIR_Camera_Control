@@ -18,20 +18,20 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QComboBox" name="comboBox">
+    <widget class="QComboBox" name="KernelTimeSelect">
      <item>
       <property name="text">
-       <string>GPS time</string>
+       <string>GPS Time*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>UTC time</string>
+       <string>UTC Time*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Local (System) time</string>
+       <string>Local (System) Time</string>
       </property>
      </item>
     </widget>
@@ -47,6 +47,12 @@
      </item>
      <item>
       <widget class="QDateTimeEdit" name="KernelReferenceTime">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
        <property name="buttonSymbols">
         <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
@@ -81,7 +87,10 @@
       </widget>
      </item>
      <item>
-      <widget class="QDateTimeEdit" name="dateTimeEdit_2">
+      <widget class="QDateTimeEdit" name="KernelCameraTime">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="buttonSymbols">
         <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
@@ -109,17 +118,11 @@
    <item row="3" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>* Requires Internet</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="ModalSaveButton">
