@@ -27,9 +27,10 @@ os.umask(0)
 import sys
 import shutil
 
-from PyQt4 import uic, QtGui
-from PyQt4.Qt import *
-from PyQt4.QtCore import pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+import PyQt5.uic as uic
 
 # from qgis.core import QgsMessageLog
 
@@ -89,9 +90,9 @@ import gdal
 import glob
 
 all_cameras = []
-
-si = subprocess.STARTUPINFO()
-si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+if sys.platform == "win32":
+    si = subprocess.STARTUPINFO()
+    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 # if sys.platform == "win32":
 #       import exiftool
 #       exiftool.executable = modpath + os.sep + "exiftool.exe"
@@ -105,7 +106,7 @@ TIME_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_time.ui'))
 
 
-class KernelModal(QtGui.QDialog, MODAL_CLASS):
+class KernelModal(QDialog, MODAL_CLASS):
     parent = None
 
     def __init__(self, parent=None):
@@ -157,7 +158,7 @@ class KernelModal(QtGui.QDialog, MODAL_CLASS):
         self.close()
 
 
-class KernelCAN(QtGui.QDialog, CAN_CLASS):
+class KernelCAN(QDialog, CAN_CLASS):
     parent = None
 
     def __init__(self, parent=None):
@@ -205,7 +206,7 @@ class KernelCAN(QtGui.QDialog, CAN_CLASS):
         self.close()
 
 
-class KernelTime(QtGui.QDialog, TIME_CLASS):
+class KernelTime(QDialog, TIME_CLASS):
     parent = None
     timer = QTimer()
     BUFF_LEN = 512
@@ -365,7 +366,7 @@ class tEventInfo:
         focusing = 0
         inversion = 0
         nr_faces = 0
-class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
+class MAPIR_ProcessingDockWidget(QDockWidget, FORM_CLASS):
     BASE_COEFF_SURVEY2_RED_JPG = [-2.55421832, 16.01240929, 0.0, 0.0, 0.0, 0.0]
     BASE_COEFF_SURVEY2_GREEN_JPG = [0.0, 0.0, -0.60437250, 4.82869470, 0.0, 0.0]
     BASE_COEFF_SURVEY2_BLUE_JPG = [0.0, 0.0, 0.0, 0.0, -0.39268985, 2.67916884]
@@ -557,7 +558,17 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.camera = self.paths[0]
 
         self.KernelUpdate()
-
+    def on_Kernel3LetterSave_released(self):
+        threeletter = self.Kernel3LetterID.text()
+        buf = [0] * 512
+        buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
+        buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
+        buf[2] = 3
+        buf[3] = ord(threeletter[0])
+        buf[4] = ord(threeletter[1])
+        buf[5] = ord(threeletter[2])
+        res = self.writeToKernel(buf)
+        self.KernelUpdate()
     def on_KernelCameraSelect_currentIndexChanged(self):
         self.camera = self.paths[self.KernelCameraSelect.currentIndex() - 1]
 
@@ -681,7 +692,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.KernelPWMSignal.blockSignals(False)
     def on_KernelFolderButton_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.KernelTransferFolder.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.KernelTransferFolder.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.PreProcessInFolder.text())
@@ -697,7 +708,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.writeToKernel(buf)
         self.camera = current_path
         self.KernelLog.append("Waiting for camera SD cards to mount (This should take about 20 seconds)")
-        QtGui.qApp.processEvents()
+        qApp.processEvents()
         time.sleep(20)
         self.KernelLog.append("Continueing...")
         tmtf = r":/dcim/tmtf.txt"
@@ -705,7 +716,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         count = 0
         while drv is not ']':
-            QtGui.qApp.processEvents()
+            qApp.processEvents()
             pathidx = -1
             if os.path.isdir(drv + r":" + os.sep + r"dcim"):
                 # try:
@@ -748,37 +759,37 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 drv = chr(ord(drv) + 1)
     def on_KernelBandButton1_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.KernelBand1.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.KernelBand1.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelBand1.text())
     def on_KernelBandButton2_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.KernelBand2.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.KernelBand2.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelBand2.text())
     def on_KernelBandButton3_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.KernelBand3.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.KernelBand3.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelBand3.text())
     def on_KernelBandButton4_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.KernelBand4.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.KernelBand4.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelBand4.text())
     def on_KernelBandButton5_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.KernelBand5.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.KernelBand5.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelBand5.text())
     def on_KernelBandButton6_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.KernelBand6.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.KernelBand6.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelBand6.text())
@@ -1225,14 +1236,14 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def on_PreProcessInButton_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.PreProcessInFolder.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.PreProcessInFolder.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.PreProcessInFolder.text())
 
     def on_PreProcessOutButton_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.PreProcessOutFolder.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.PreProcessOutFolder.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.PreProcessOutFolder.text())
@@ -1271,37 +1282,37 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def on_CalibrationInButton_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationInFolder.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.CalibrationInFolder.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationInFolder.text())
     def on_CalibrationInButton_2_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationInFolder_2.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.CalibrationInFolder_2.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationInFolder_2.text())
     def on_CalibrationInButton_3_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationInFolder_3.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.CalibrationInFolder_3.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationInFolder_3.text())
     def on_CalibrationInButton_4_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationInFolder_4.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.CalibrationInFolder_4.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationInFolder_4.text())
     def on_CalibrationInButton_5_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationInFolder_5.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.CalibrationInFolder_5.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationInFolder_5.text())
     def on_CalibrationInButton_6_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationInFolder_6.setText(QtGui.QFileDialog.getExistingDirectory(directory=instring.read()))
+            self.CalibrationInFolder_6.setText(QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationInFolder_6.text())
@@ -1309,37 +1320,37 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def on_CalibrationQRButton_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile.setText(QtGui.QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile.setText(QFileDialog.getOpenFileName(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile.text())
     def on_CalibrationQRButton_2_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_2.setText(QtGui.QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_2.setText(QFileDialog.getOpenFileName(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_2.text())
     def on_CalibrationQRButton_3_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_3.setText(QtGui.QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_3.setText(QFileDialog.getOpenFileName(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_3.text())
     def on_CalibrationQRButton_4_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_4.setText(QtGui.QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_4.setText(QFileDialog.getOpenFileName(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_4.text())
     def on_CalibrationQRButton_5_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_5.setText(QtGui.QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_5.setText(QFileDialog.getOpenFileName(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_5.text())
     def on_CalibrationQRButton_6_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_6.setText(QtGui.QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_6.setText(QFileDialog.getOpenFileName(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_6.text())
@@ -2435,7 +2446,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.PreProcessLog.append(
                     "processing image: " + str((counter) + 1) + " of " + str(len(infiles)) +
                     " " + input.split(os.sep)[1])
-                QtGui.qApp.processEvents()
+                qApp.processEvents()
                 self.openDNG(infolder + input.split('.')[1] + "." + input.split('.')[2], outfolder, customerdata)
 
                 counter += 1
@@ -2450,7 +2461,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.PreProcessLog.append(
                     "processing image: " + str((counter) + 1) + " of " + str(len(infiles)) +
                     " " + input.split(os.sep)[1])
-                QtGui.qApp.processEvents()
+                qApp.processEvents()
                 filename = input.split('.')
                 outputfilename = filename[1] + '.tiff'
                 print(infolder + input.split('.')[1] + "." + input.split('.')[2])
@@ -2474,7 +2485,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
                             self.PreProcessLog.append(
                                 "processing image: " + str((counter / 2) + 1) + " of " + str(len(infiles) / 2) +
                                 " " + input.split(os.sep)[1])
-                            QtGui.qApp.processEvents()
+                            qApp.processEvents()
                         with open(input, "rb") as rawimage:
                             img = np.fromfile(rawimage, np.dtype('u2'), self.imsize).reshape((self.imrows, self.imcols))
                             color = cv2.cvtColor(img, cv2.COLOR_BAYER_RG2RGB)
@@ -2512,7 +2523,7 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if not os.path.exists(outfolder + os.sep + newfile.rsplit(os.sep, 1)[1]):
             if sys.platform == "win32":
                 subprocess.call([modpath + os.sep + 'dcraw.exe', '-6', '-T', inphoto], startupinfo=si)
-            elif sys.platform == "darwin":
+            else:
                 subprocess.call([r'/usr/local/bin/dcraw', '-6', '-T', inphoto])
             if customerdata == True:
                 self.copyExif(os.path.abspath(inphoto), newfile)
@@ -2540,9 +2551,9 @@ class MAPIR_ProcessingDockWidget(QtGui.QDockWidget, FORM_CLASS):
                  os.path.abspath(inphoto),
                  r'-all:all<all:all',
                  os.path.abspath(outphoto)], startupinfo=si)
-        elif sys.platform == "darwin":
+        else:
             subprocess.call(
-                [r'/usr/local/bin/exiftool', r'-overwrite_original', r'-addTagsFromFile', os.path.abspath(inphoto),
+                [r'exiftool', r'-overwrite_original', r'-addTagsFromFile', os.path.abspath(inphoto),
                  r'-all:all<all:all',
                  os.path.abspath(outphoto)])
 
