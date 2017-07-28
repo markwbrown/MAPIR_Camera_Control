@@ -2532,15 +2532,20 @@ class MAPIR_ProcessingDockWidget(QDockWidget, FORM_CLASS):
             self.PreProcessLog.append("Attention!: " + str(newfile) + " already exists.")
 
     def openMapir(self, inphoto, outphoto):
-        if self.PreProcessDarkBox.isChecked():
-            subprocess.call(
-                [modpath + os.sep + r'Mapir_Converter_dark.exe', os.path.abspath(inphoto),
-                 os.path.abspath(outphoto)])
+
+        if self.PreProcessCameraModel.currentIndex() == 0:
+            if self.PreProcessDarkBox.isChecked():
+                subprocess.call(
+                    [modpath + os.sep + r'Mapir_Converter_dark.exe', os.path.abspath(inphoto),
+                     os.path.abspath(outphoto)])
+            else:
+                subprocess.call(
+                    [modpath + os.sep + r'Mapir_Converter.exe', os.path.abspath(inphoto),
+                     os.path.abspath(outphoto)])
         else:
             subprocess.call(
-                [modpath + os.sep + r'Mapir_Converter.exe', os.path.abspath(inphoto),
+                [modpath + os.sep + r'Mapir_Converter_IMX265.exe', os.path.abspath(inphoto),
                  os.path.abspath(outphoto)])
-
     def copyExif(self, inphoto, outphoto):
         if sys.platform == "win32":
             # with exiftool.ExifTool() as et:
