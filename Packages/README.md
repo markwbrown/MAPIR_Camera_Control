@@ -1,7 +1,5 @@
 # Windows
-[Installer](http://www.docs.peauproductions.com/MCC/MCC_setup.exe)
-
-[MAPIR_Camera_Control_WINDOWS.zip](http://www.docs.peauproductions.com/MCC/MAPIR_Camera_Control_WINDOWS.zip)
+[Download](http://www.docs.peauproductions.com/MCC/MAPIR_Camera_Control.exe)
 
 # Mac
 [MAPIR_Camera_Control_MAC.zip](http://www.docs.peauproductions.com/MCC/MAPIR_Camera_Control_MAC.zip)
