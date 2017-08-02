@@ -1,8 +1,8 @@
-#Windows
-[Download](http://www.docs.peauproductions.com/MCC/MAPIR_Camera_Control_WINDOWS.zip)
+# Windows
+[Download](http://www.docs.peauproductions.com/MCC/MAPIR_Camera_Control.exe)
 
-#Mac
-[Download](http://www.docs.peauproductions.com/MCC/MAPIR_Camera_Control_MAC.zip)
+# Mac
+[MAPIR_Camera_Control_MAC.zip](http://www.docs.peauproductions.com/MCC/MAPIR_Camera_Control_MAC.zip)
 
-#Linux
-[Download](http://www.docs.peauproductions.com/MCC/MAPIR_Camera_Control_LINUX.zip)
+# Linux
+[MAPIR_Camera_Control_LINUX.tar.gz](http://www.docs.peauproductions.com/MCC/MAPIR_Camera_Control_LINUX.tar.gz)
