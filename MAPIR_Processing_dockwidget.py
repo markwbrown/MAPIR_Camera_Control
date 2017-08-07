@@ -47,7 +47,9 @@ from MAPIR_Enums import *
 import struct
 
 modpath = os.path.dirname(os.path.realpath(__file__))
-
+if not os.path.exists(modpath + os.sep + "instring.txt"):
+    istr = open(modpath + os.sep + "instring.txt", "w")
+    istr.close()
 # sys.path.insert(0, modpath)
 # if sys.platform == "win32":  # Windows OS
 #
@@ -1320,37 +1322,37 @@ class MAPIR_ProcessingDockWidget(QDockWidget, FORM_CLASS):
 
     def on_CalibrationQRButton_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile.setText(QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile.setText(QFileDialog.getOpenFileName(directory=instring.read())[0])
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile.text())
     def on_CalibrationQRButton_2_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_2.setText(QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_2.setText(QFileDialog.getOpenFileName(directory=instring.read())[0])
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_2.text())
     def on_CalibrationQRButton_3_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_3.setText(QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_3.setText(QFileDialog.getOpenFileName(directory=instring.read())[0])
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_3.text())
     def on_CalibrationQRButton_4_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_4.setText(QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_4.setText(QFileDialog.getOpenFileName(directory=instring.read())[0])
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_4.text())
     def on_CalibrationQRButton_5_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_5.setText(QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_5.setText(QFileDialog.getOpenFileName(directory=instring.read())[0])
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_5.text())
     def on_CalibrationQRButton_6_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
-            self.CalibrationQRFile_6.setText(QFileDialog.getOpenFileName(directory=instring.read()))
+            self.CalibrationQRFile_6.setText(QFileDialog.getOpenFileName(directory=instring.read())[0])
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationQRFile_6.text())
@@ -2532,20 +2534,28 @@ class MAPIR_ProcessingDockWidget(QDockWidget, FORM_CLASS):
             self.PreProcessLog.append("Attention!: " + str(newfile) + " already exists.")
 
     def openMapir(self, inphoto, outphoto):
+        if "tif" in inphoto.split('.')[1]:
+            with open(inphoto, "rb") as rawimage:
+                img = np.fromfile(rawimage, np.dtype('u2'), self.imsize).reshape((3288, 4384))
+                color = cv2.cvtColor(img, cv2.COLOR_BAYER_RG2RGB)
 
-        if self.PreProcessCameraModel.currentIndex() == 0:
-            if self.PreProcessDarkBox.isChecked():
-                subprocess.call(
-                    [modpath + os.sep + r'Mapir_Converter_dark.exe', os.path.abspath(inphoto),
-                     os.path.abspath(outphoto)])
+                cv2.imencode(".tiff", color)
+                cv2.imwrite(outphoto, color)
+                self.copyExif(inphoto, outphoto)
+        else:
+            if self.PreProcessCameraModel.currentIndex() == 0:
+                if self.PreProcessDarkBox.isChecked():
+                    subprocess.call(
+                        [modpath + os.sep + r'Mapir_Converter_dark.exe', os.path.abspath(inphoto),
+                         os.path.abspath(outphoto)])
+                else:
+                    subprocess.call(
+                        [modpath + os.sep + r'Mapir_Converter.exe', os.path.abspath(inphoto),
+                         os.path.abspath(outphoto)])
             else:
                 subprocess.call(
-                    [modpath + os.sep + r'Mapir_Converter.exe', os.path.abspath(inphoto),
+                    [modpath + os.sep + r'Mapir_Converter_IMX265.exe', os.path.abspath(inphoto),
                      os.path.abspath(outphoto)])
-        else:
-            subprocess.call(
-                [modpath + os.sep + r'Mapir_Converter_IMX265.exe', os.path.abspath(inphoto),
-                 os.path.abspath(outphoto)])
     def copyExif(self, inphoto, outphoto):
         if sys.platform == "win32":
             # with exiftool.ExifTool() as et:
