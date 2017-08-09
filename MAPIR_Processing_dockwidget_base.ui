@@ -57,7 +57,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="PreProcessTab">
        <attribute name="title">
@@ -980,11 +980,6 @@ p, li { white-space: pre-wrap; }
          </layout>
         </item>
        </layout>
-       <zorder>CalibrationInButton_2</zorder>
-       <zorder>CalibrationInFolder_2</zorder>
-       <zorder>CalibrationQRFile_3</zorder>
-       <zorder>CalibrationQRButton_3</zorder>
-       <zorder>CalibrationGenButton_3</zorder>
        <zorder>CalibrationLog</zorder>
        <zorder>Tiff2JpgBox</zorder>
       </widget>

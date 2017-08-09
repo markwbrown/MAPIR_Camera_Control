@@ -47,31 +47,8 @@
      </item>
      <item>
       <widget class="QDateTimeEdit" name="KernelReferenceTime">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="date">
-        <date>
-         <year>2017</year>
-         <month>5</month>
-         <day>4</day>
-        </date>
-       </property>
-       <property name="minimumDate">
-        <date>
-         <year>1752</year>
-         <month>11</month>
-         <day>14</day>
-        </date>
-       </property>
        <property name="displayFormat">
-        <string>yyyy:MM:dd hh:mm:ss.zzz</string>
+        <string>yyyy:MM:dd hh:mm:ss.sss</string>
        </property>
       </widget>
      </item>
@@ -88,28 +65,8 @@
      </item>
      <item>
       <widget class="QDateTimeEdit" name="KernelCameraTime">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="date">
-        <date>
-         <year>2017</year>
-         <month>5</month>
-         <day>4</day>
-        </date>
-       </property>
-       <property name="minimumDate">
-        <date>
-         <year>1752</year>
-         <month>11</month>
-         <day>14</day>
-        </date>
-       </property>
        <property name="displayFormat">
-        <string>yyyy:MM:dd hh:mm:ss.zzz</string>
+        <string>yyyy:MM:dd hh:mm:ss.sss</string>
        </property>
       </widget>
      </item>
