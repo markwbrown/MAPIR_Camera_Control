@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1040</width>
-    <height>649</height>
+    <width>1170</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -57,7 +57,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="PreProcessTab">
        <attribute name="title">
@@ -324,6 +324,11 @@
               </item>
               <item>
                <property name="text">
+                <string>Survey3</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
                 <string>Survey2</string>
                </property>
               </item>
@@ -339,7 +344,17 @@
               </item>
               <item>
                <property name="text">
-                <string>DJI Phantom 3</string>
+                <string>DJI Phantom 4 Pro</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>DJI Phantom 3a</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>DJI Phantom 3p</string>
                </property>
               </item>
               <item>
@@ -429,6 +444,11 @@
             </item>
             <item>
              <property name="text">
+              <string>Survey3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>Survey2</string>
              </property>
             </item>
@@ -440,6 +460,11 @@
             <item>
              <property name="text">
               <string>DJI Phantom 4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>DJI Phantom 4 Pro</string>
              </property>
             </item>
             <item>
@@ -579,9 +604,7 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;If you have an image taken of the MAPIR calibration ground target, select a camera model before selecting the target image. Finding the target may take some time and cause some lag in your computer's processing. You'll see text below telling you whether the calibration photo was found or not.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;QGIS may become unresponsive while images are being calibrated. Please be patient, especially when processing many high resolution images.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;A window (command prompt) will pop up briefly after each image is processed (This is the embedded application that is transferring the EXIF metadata between images.)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The Program may become unresponsive while images are being calibrated. Please be patient, especially when processing many high resolution images.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Text will display below when calibration has completed.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;****************************************************************&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1100,9 +1123,6 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item row="4" column="0">
-         <widget class="QTextEdit" name="KernelLog"/>
-        </item>
         <item row="3" column="0">
          <widget class="QTabWidget" name="tabWidget_2">
           <property name="sizePolicy">
@@ -1112,7 +1132,7 @@ p, li { white-space: pre-wrap; }
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_3">
            <attribute name="title">
@@ -1695,7 +1715,7 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <layout class="QGridLayout" name="gridLayout_9">
             <item row="0" column="0">
-             <widget class="QTabWidget" name="tabWidget_3">
+             <widget class="QTabWidget" name="DarkCurrentFix">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
                 <horstretch>0</horstretch>
@@ -1703,183 +1723,197 @@ p, li { white-space: pre-wrap; }
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="tab">
                <attribute name="title">
                 <string>Rename</string>
                </attribute>
-               <layout class="QGridLayout" name="gridLayout_8">
-                <item row="0" column="0">
-                 <widget class="QSplitter" name="splitter">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <widget class="QWidget" name="layoutWidget">
-                   <layout class="QHBoxLayout" name="horizontalLayout_25">
+               <layout class="QVBoxLayout" name="verticalLayout_4">
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_30">
+                  <item>
+                   <widget class="QLabel" name="label_26">
+                    <property name="text">
+                     <string>Output Folder:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="KernelRenameOutputFolder">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="KernelRenameOutputButton">
+                    <property name="text">
+                     <string>Browse...</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_25">
+                  <item>
+                   <widget class="QComboBox" name="KernelRenameMode">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
                     <item>
-                     <widget class="QComboBox" name="KernelRenameMode">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="toolTip">
-                       <string/>
-                      </property>
-                      <item>
-                       <property name="text">
-                        <string>Standard</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Muli-Page</string>
-                       </property>
-                      </item>
-                     </widget>
+                     <property name="text">
+                      <string>Standard</string>
+                     </property>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="KernelRenameButton">
-                      <property name="text">
-                       <string>Go</string>
-                      </property>
-                     </widget>
+                     <property name="text">
+                      <string>Muli-Page</string>
+                     </property>
                     </item>
-                   </layout>
-                  </widget>
-                  <widget class="QWidget" name="layoutWidget">
-                   <layout class="QVBoxLayout" name="verticalLayout_9">
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_19">
-                      <item>
-                       <widget class="QLabel" name="label_20">
-                        <property name="text">
-                         <string>Band 1:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLineEdit" name="KernelBand1"/>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="KernelBandButton1">
-                        <property name="text">
-                         <string>Browse...</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_20">
-                      <item>
-                       <widget class="QLabel" name="label_21">
-                        <property name="text">
-                         <string>Band 2:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLineEdit" name="KernelBand2"/>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="KernelBandButton2">
-                        <property name="text">
-                         <string>Browse...</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_21">
-                      <item>
-                       <widget class="QLabel" name="label_22">
-                        <property name="text">
-                         <string>Band 3:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLineEdit" name="KernelBand3"/>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="KernelBandButton3">
-                        <property name="text">
-                         <string>Browse...</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_22">
-                      <item>
-                       <widget class="QLabel" name="label_23">
-                        <property name="text">
-                         <string>Band 4:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLineEdit" name="KernelBand4"/>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="KernelBandButton4">
-                        <property name="text">
-                         <string>Browse...</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_23">
-                      <item>
-                       <widget class="QLabel" name="label_24">
-                        <property name="text">
-                         <string>Band 5:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLineEdit" name="KernelBand5"/>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="KernelBandButton5">
-                        <property name="text">
-                         <string>Browse...</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_24">
-                      <item>
-                       <widget class="QLabel" name="label_25">
-                        <property name="text">
-                         <string>Band 6:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLineEdit" name="KernelBand6"/>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="KernelBandButton6">
-                        <property name="text">
-                         <string>Browse...</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                   </layout>
-                  </widget>
-                 </widget>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="KernelRenameButton">
+                    <property name="text">
+                     <string>Go</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_19">
+                  <item>
+                   <widget class="QLabel" name="label_20">
+                    <property name="text">
+                     <string>Band 1:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="KernelBand1"/>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="KernelBandButton1">
+                    <property name="text">
+                     <string>Browse...</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_20">
+                  <item>
+                   <widget class="QLabel" name="label_21">
+                    <property name="text">
+                     <string>Band 2:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="KernelBand2"/>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="KernelBandButton2">
+                    <property name="text">
+                     <string>Browse...</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_21">
+                  <item>
+                   <widget class="QLabel" name="label_22">
+                    <property name="text">
+                     <string>Band 3:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="KernelBand3"/>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="KernelBandButton3">
+                    <property name="text">
+                     <string>Browse...</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_22">
+                  <item>
+                   <widget class="QLabel" name="label_23">
+                    <property name="text">
+                     <string>Band 4:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="KernelBand4"/>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="KernelBandButton4">
+                    <property name="text">
+                     <string>Browse...</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_23">
+                  <item>
+                   <widget class="QLabel" name="label_24">
+                    <property name="text">
+                     <string>Band 5:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="KernelBand5"/>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="KernelBandButton5">
+                    <property name="text">
+                     <string>Browse...</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_24">
+                  <item>
+                   <widget class="QLabel" name="label_25">
+                    <property name="text">
+                     <string>Band 6:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="KernelBand6"/>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="KernelBandButton6">
+                    <property name="text">
+                     <string>Browse...</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </widget>
@@ -1914,7 +1948,56 @@ p, li { white-space: pre-wrap; }
                 </item>
                </layout>
               </widget>
+              <widget class="QWidget" name="tab_5">
+               <attribute name="title">
+                <string>Page</string>
+               </attribute>
+               <layout class="QGridLayout" name="gridLayout_8">
+                <item row="1" column="0">
+                 <layout class="QVBoxLayout" name="verticalLayout_5">
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_31">
+                    <item>
+                     <widget class="QPushButton" name="DarkCurrentInputButton">
+                      <property name="text">
+                       <string>Input</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="DarkCurrentInput"/>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_32">
+                    <item>
+                     <widget class="QPushButton" name="DarkCurrentOutputButton">
+                      <property name="text">
+                       <string>Output</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="DarkCurrentOutput"/>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="DarkCurrentGoButton">
+                  <property name="text">
+                   <string>Go</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QTextEdit" name="KernelLog"/>
             </item>
            </layout>
           </widget>
